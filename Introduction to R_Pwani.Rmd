@@ -1,0 +1,558 @@
+---
+title: "Introduction to R Programming"
+author: "Author : Moses Kioko"
+date: 'Date : `r format(Sys.Date(), "%B %d, %Y")`'
+output:
+  html_document:
+    theme: cerulean
+    highlight: tango
+    fontsize: 6pt
+    code_folding: hide
+    toc: true
+    number_sections: true
+    code_download: true
+    toc_float:
+      collapsed: true
+---
+
+# Introduction to R Programming 
+
+This markdown file focus on introduction of R Programming language by tackling the major aspects of statistical programming. The following topics will be covered in the course of this lecture. 
+To access google slides for the lecture please follow this [link](https://docs.google.com/presentation/d/1pEJUoejwYzyqjX3Hk7oUcgQwmq8VUlkyJZHahKav-Zc/edit?pli=1#slide=id.ga7394a65b4_0_577)
+
+**Topics Covered**
+
+The table below shows a brief description of the content to be covered.
+
+Topic           | Description  
+-----------------|----------------------------------------
+R step up        |    Downloading and Installing the R interface and relevant packages   
+R Syntax       | getting acquitted with operators in R language    
+Importing and Exporting | Bringing data in and out of R environment 
+Wrangling / Munging  | Process of preparing data ready for analysis
+Functions           | Helping to keep code neat and smaller
+Merging & appending data-sets | Compiling data-sets by bringing together different tables by unique identifier 
+
+# R setup 
+
+## Downloading and Installing R 
+To set up functional R work-flow you need to download and install the following;
+
++ [Base R](https://cran.r-project.org/bin/windows/base/) - creates environment for statistical computing and visualization
++ [Rstudio](https://rstudio.com/products/rstudio/download/) - It is wrapper upon which base R runs on 
++ [R Tools](https://cran.r-project.org/bin/windows/Rtools/) - links up base R and other languages *i.e *python
+
+## Setting Up work Environment 
+Setting up working environment entails clearing the working space and setting a working directory from where you can launch scripting of your projects comfortably.
+
+```{r working directory, echo=TRUE, message=FALSE, warning=FALSE}
+#clearing the working environment all objects in environment 
+rm(list = ls(all=TRUE))
+
+
+#setting working directory 
+## Step I: Print current working directory 
+getwd()
+
+## Step II: set new working directoy 
+setwd('D:/pwani data collection/Pwani Analysis')
+
+## Step III: Confirm if youre on desired working directory by running 
+#getwd()
+
+```
+
+## Installing and Loading Packages 
+R is a functional language that facilitate munging and computational analysis of data.To run any analysis or data manipulation you have to install **relevant Packages**, which have in-build functions that aid in performing specific tasks. One of the main packages in R is [Tidyverse Package](https://www.tidyverse.org/packages/) complied by `Hadley Wickham`. The package is crafted by combining different packages that are essential in wrangling and analyzing data-sets, they include;
+
++ dplyr package 
++ tidyr package 
++ ggplot2 package
++ readr package
++ forcats package
++ tibble package
++ purr package
+
+### Github 
+Installing packages from github requires a prior installation of either remotes or devtools package. However, this method may not be so effective especially when it comes to updating the packages.
+
+
+```{r github installation, echo=TRUE, message=FALSE, warning=FALSE}
+# install remotes or devtools 
+#install.packages('devtools', dependencies = TRUE)
+#install.packages('remotes', dependencies = TRUE)
+
+#load the packages 
+library(remotes) # or
+library(devtools)
+
+# installing specific packages in r from github
+#devtools::install_github("tidyverse/tidyverse")
+
+#load the tidyverse package 
+library(tidyverse)
+```
+
+### CRAN 
+Cran is the main repository where most of packages are housed for download in R.To install packages from CRAN please follow the attached example.
+
+```{r cran, echo=TRUE, message=FALSE, warning=FALSE}
+# install package from Tidyverse from cran 
+#install.packages('tidyverse', dependencies = TRUE)
+
+#installing multiple packages from cran 
+#install.packages(c('tidyverse','lubridate'), dependencies = TRUE)
+
+#loading different packages 
+library(tidyverse)
+```
+
+# Import and Export Data
+Importing the data entails bringing in the data to R environment, the procedure of doing so its purely dependent on the file you want to import. 
+There are several packages that are used to import/export data in R and such include;
+
+Package              |            Type of files
+---------------------|--------------------------------------------------------------
+readr package        | Imports and exports CSV files 
+readxl package       | Imports  .xls and .xlsx files.
+haven package        | Imports stata files*(.dta)*, spss files among others
+jsonlite package     | Imports json files 
+rio package          | Imports and writes majority of files *i.e* excel, csv files ...*etc*
+feather package      | Import python files
+rvest package        | used for web scrapping 
+xml2 package         | Imports xml files
+
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#exporting different methods of importing data 
+
+#step I: load the respective library 
+library(readxl) # for excel files 
+library(readr) #for csv files
+library(rio)
+rio::install_formats()
+
+#import data 
+fish_data <- readxl::read_excel('Fish Data.xlsx', sheet = 'raw data')
+one_species <- readxl::read_excel('One Fish Species.xlsx')
+```
+
+**please note ;**  you can skip a row  while importing the data as indicated in the example below. It is also worth noting that with Microsoft Excel workbooks you can read data from different sheets independently by specifying the sheet which contains the data.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#skipping row 1 in coordinate data 
+coordinates <- readxl::read_excel('Fish Data.xlsx', sheet = 'coordinates',skip = 1)
+```
+
+# Scanning Data
+Scanning data basically entails, checking out for;
+
++ Data Types
++ Outliers 
++ Missing Values
+
+## Data types 
+Data types are helpful to the programmer for understanding the type of data s/he is handling or manipulating.Unlike statistically typed languages, R derives the data type of the variable implicitly from the R object assigned to the variable.
+
+Data Type          | Example         | Description         | Verify 
+-------------------|-----------------|---------------------|--------------------------------------------------------
+Logical           | True *or* False  | Boolean Values      | v <- TRUE, print(class(x)) produces result `logical`
+Numeric            | 2, 2.0,2.22     | Numbers of all Kinds| v <- 23.5, print(class(v)), produces result `numeric`
+Integer            | 1L, 2L          | Explicitly integers| v <- 2L, print(class(v)), produces result `interger`
+Complex            | 8 + 5i          |Real Value + Complex Value| v <- 2+5i,print(class(v)),produces result `complex`
+Character          | "yes","no"      | Characters and Strings |v <- "yes",print(class(v)), produces result `character`
+
+To print all the data types in a data frame you can run `str command` as illustrated in the example below 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#check data types 
+str(fish_data)
+```
+
+## Outliers 
+Outliers are values that are way behold the normal range of expected values, to spot this you plot a distribution plot or run a descriptive analysis. *please note that outliers are majorly numerical values*.For this example we will use base R commands to plot the data 
+
+**Scatter Plot** 
+
+The attached scatter plot indicates that most of fish had weight of less than 40Kg. However, some had weight of over 40kg which is an indicator for outliers. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE,fig.width=10,fig.height=5,fig.align='center'}
+#scatter plot
+plot(fish_data$`Total catch_kg`,
+     main = 'Weight Distribution',
+     ylab ='Weight (kg)',
+     xlab = '#Records',
+     col ='steelblue')
+```
+
+**Box Plot**
+
+Distribution of weight over species family is mapped in the boxplot below, from the plot it is evident that there is presence of outliers in the distribution as some of the points fall outside the boxplot in respective families.
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE,fig.width=10,fig.height=5,fig.align='center'}
+#box plot 
+boxplot(`Total catch_kg`~ Family , data = fish_data,
+        ylab = 'Weight(kg)',
+        xlab = 'Species Family',
+        col ='steelblue')
+
+title("weight Distribution over Fish Family")
+
+```
+
+
+
+
+## Missing Values 
+Missing values are simply all the Na or NAN values in a dataset, this values might lead to inaccurate analysis therefore we either;
+
+- Drop Missing Values 
+- Impute Missing Values 
+
+
+### Drop missing values 
+Dropping missing values is the the advisable method of handling missing data. However, this is dependent on the size of the data-set. You can drop all the missing values in the whole data-set or you can drop missing values using a preferred column *or* variable.
+
+There are several options of dropping missing variable;
+
+- tidyr functions ~ drop_na
+- base r functions ~ na.omit or complete_case
+- dplyr filter functions
+
+To plot the distribution of the missing data, we use *Amelia Package* missmap function . 
+```{r fish data missing data I, echo=TRUE, message=FALSE, warning=FALSE, fig.width=9}
+#load the amelia package
+library(Amelia)
+
+Amelia::missmap(fish_data, main = 'Fish Data Missing Map',y.cex = 0.7, x.cex = 0.7)
+
+```
+
+
+The miss plot attached above indicates that **12%** of the data was missing. There two ways in which we can drop the missing data either by dropping all missing data in the set or dropping missing values in specific column. However, our dataset is not that big, therefore we might end up over-reducing the data  by a significant margin. This prompts us to consider the most vital variable that we can use drop the missing values and in our case its the species column.
+
+```{r fish data missing data II, echo=TRUE, message=FALSE, warning=FALSE,fig.width=9}
+#dropping missing values using fish species
+fish_clean_data <- fish_data[complete.cases(fish_data$Species),]
+ 
+# 
+
+Amelia::missmap(fish_clean_data, main = 'Fish Data Missing Map',y.cex = 0.7, x.cex = 0.7)
+
+```
+After dropping missing fish species it is evident that the percentage of missing values have significantly reduced from **12%** to **7%**,. However, you can notice that `No. of fishers` column have the majorly missing value.Therefore, we can drop the column.
+
+After dropping the variable you can notice that we have **0%** missing values as indicated by the miss-plot below.
+
+```{r fish data missing data III, echo=TRUE, message=FALSE, warning=FALSE,fig.width=9}
+#drop no of fisheries 
+fish_clean_data <- fish_clean_data %>% 
+  select(-`No. fishers`)
+  
+
+Amelia::missmap(fish_clean_data, main = 'Fish Data Missing Map',y.cex = 0.7, x.cex = 0.7)
+```
+
+### Impute missing values 
+Imputing missing values is basically replacing missing values with pre-determined values. *i.e mean or median*. There are several packages that you can use to impute values they include;
+
++ Amelia Package 
+- Hmisc Package 
+
+**Please note;** *This is not advisable method of dealing with missing values as it can contribute to wrong analysis*
+
+# Wrangling Data 
+Wrangling data is a process of pre-processing data before analysis, this is purely dependent on complexity of the data-set. In advanced stages it's only ideal to run feature selection as part of data pre-processing which is purely applicable in large data-sets .In our case we will dwell on introductory part of data cleaning that entails;
+
++ changing data formats 
++ changing text casing *i.e lowering the strings *
++ changing date formats 
+
+we can have a general output of dataframe we working on, to do that we check on either the first few columns or the bottom column.
+
+**Top 4 Rows**
+```{r head, echo=TRUE, message=FALSE, warning=FALSE}
+head(fish_clean_data,4)
+```
+
+**Bottom 4 Rows**
+```{r tail, echo=TRUE, message=FALSE, warning=FALSE}
+head(fish_clean_data,4)
+```
+
+## Step I: Lowering the Variable Names
+
+This is important simply because some of the variables have different character casing which would land us in trouble just in case we might need to merge the current data with other sets 
+
+```{r wrangling I, echo=TRUE, message=FALSE, warning=FALSE}
+#lowering the variable names 
+clean_data <- fish_clean_data %>% 
+  select_all(tolower)
+# to put the data in a nice table we can use reactable package 
+# install.package('reactable', dependencies=TRUE)
+library(reactable)
+
+#output  the table
+reactable(clean_data[1:4,])
+```
+
+## Step II: Renaming
+
+Renaming the variables in r you can use base R commands or use dplyr package rename function or select function , However, i would advise on using dplyr as it is easy to write and pipe to other commands in the pipeline 
+
+```{r renaming, echo=TRUE, message=FALSE, warning=FALSE}
+#rename several variable name using rename fuction in dplyr
+clean_data <- clean_data %>% 
+  rename(species_family = family,
+         `total_weight(kg)` = `total catch_kg`,
+         `sample_weight(kg)` = `sample weight_kg`,
+         sample_no = `sample no.`,
+         boat_type = `boat type`,
+         gear_type = `gear type`,
+         total_catch = `total pieces`,
+         fishing_ground = `fishing ground`)
+
+#output  the table
+reactable(clean_data[1:4,])
+```
+
+## Step III: Formatting variables
+
+Varibles exist in different formas that might be unacceptable for visualization or even analysis, to counter this we change the variables types *i.e in our case date exist as a character which might be hard to plot or do any kind of time series related analysis*. To change the date type we might need help of base R commands or even [Lubricate Package](https://www.rdocumentation.org/packages/lubridate/versions/1.7.9) which is so handy in dealing with date variables 
+
+```{r formatting variables, echo=TRUE, message=FALSE, warning=FALSE}
+#load lubridate package 
+library(lubridate)
+
+#format dates 
+clean_data <- clean_data %>% 
+  mutate(date = as_date(date))
+
+#output  the table
+reactable(clean_data[1:4,])
+```
+
+## Step IV: Word Casing
+
+Word casing is changing the string case *i.e from lower to Upper case or from lower to capitalizing each word.*
+```{r change casing, echo=TRUE, message=FALSE, warning=FALSE}
+#changing casing 
+clean_data <- clean_data %>% 
+  #capitalize words
+  mutate(boat_type = str_to_title(boat_type)) %>% 
+  mutate(gear_type = str_to_title(gear_type)) %>% 
+  mutate(area = str_to_title(area)) %>% 
+  mutate(fishing_ground =str_to_title(fishing_ground)) %>% 
+  #lower words
+  mutate(species = str_to_lower(species)) %>% 
+  mutate(species_family =str_to_lower(species_family))
+
+#output  the table
+reactable(clean_data[1:4,])
+```
+
+## Step V: labelling
+
+Labeling help us to explore use of conditional functions to clean data by changing labels in datasets, in our case we use `if else` function that checks if the condition is true or false and return respective label assigned 
+
+```{r labelling, echo=TRUE, message=FALSE, warning=FALSE}
+#labelling casing 
+clean_data <- clean_data %>% 
+  mutate(season = if_else(season == 'NEM','North East Monsoon ',
+                          if_else(season == 'SEM','South East Monsoon ','unknown')))
+#output  the table
+reactable(clean_data[1:4,])
+```
+
+
+**Cleaning  Coordinate Data**
+
+Load coordinate data and print the first 4 columns. 
+```{r cordinates I, echo=TRUE, message=FALSE, warning=FALSE}
+#output  the table
+reactable(coordinates)
+```
+
+
+The table above is a composition of attributes for the coordinates different fishing grounds. The important variables include major fishing ground, sub fishing ground, latitude and longitude.
+
+This Variables are selected and renamed at the same time using `select` command in `dyplr` that ensures you select the  desired fields and assign them to names of your choice as illustrated by the example below
+
+```{r cordinates II, echo=TRUE, message=FALSE, warning=FALSE}
+#select only important varibles and rename 
+coordinates_data <- coordinates %>% 
+  dplyr::select(main_fishingground = `Major fishing ground`,
+                sub_fishingground = `Sub fishing ground`,
+                latitude,longitude)
+#output  the table
+reactable(coordinates_data)
+```
+
+
+After selecting the variables and assigning them to preferred names the the casing of the records are capitalized to standardize the names.
+
+```{r cordinates III, echo=TRUE, message=FALSE, warning=FALSE}
+#tolower fishing ground names
+coordinates_data <- coordinates_data %>% 
+  mutate(main_fishingground = str_to_title(main_fishingground)) %>% 
+  mutate(sub_fishingground = str_to_title(sub_fishingground))
+
+#output  the table
+reactable(coordinates_data)
+```
+
+## Step VI: Reshape the Data 
+Reshaping data entails changing between long to wide formats and vice versa, this can be done using `tidyr package`, `splitstackshape` *or* `reshape` packages among others. In our case we will be using tidyr package to change wide format to long, this is illustrated in the example below.
+
+```{r reshape cordinates,echo=TRUE, message=FALSE, warning=FALSE}
+#transform data from wide to long
+coordinates_long <- coordinates_data %>% 
+  pivot_longer(main_fishingground:sub_fishingground, names_to ='category', values_to = 'fishing_ground')
+
+#output  the table
+reactable(coordinates_long)
+```
+
+**Filter Missing Fishing Ground**
+
+After transforming the data from long to wide, we exclude the category column as well as excluding the entries are missing fishing grounds
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+coordinates_long <- coordinates_long %>% 
+  #remove the missing fishing ground 
+  filter(str_length(fishing_ground)>2) %>% 
+  #unselect the category column
+  select(-category)
+
+#output  the table
+reactable(coordinates_long)
+```
+
+
+**Separate Combined Fishing Ground**
+
+One of the collected GPS location was shared between two fishing ground hence we need to separate the location by splitting by the separating delimiter. Separate function helps us to accomplish this as illustrated by the example below
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+coordinates_long <- coordinates_long %>% 
+  #separate the combined fishing fround 
+  separate(fishing_ground, into = c('ground_I','ground_II'),sep = '/')
+
+#output  the table
+reactable(coordinates_long)
+```
+
+**Combine Ground I and II**
+
+We transform the the data again from wide format to long format and repeat the same procedure of selecting the fishing ground with values as well as un-selecting the category 
+
+```{r,echo=TRUE, message=FALSE, warning=FALSE}
+coordinates_long <-coordinates_long %>% 
+  #change wide to long 
+  pivot_longer(ground_I:ground_II, names_to ='category',values_to ='fishing_ground') %>% 
+  #unselect the missing fishing ground
+  filter(!is.na(fishing_ground)) %>% 
+  #unselect the category 
+  select(-category) %>% 
+  #change the latitude to minus point
+  mutate(latitude = 0-latitude)
+
+#output  the table
+reactable(coordinates_long)
+``` 
+
+
+# Merge 
+Merge dataset is combining two or more datasets by use of unique key variables that is present in both datasets. In R programming language this can be done by ;
+
+Types        | Description 
+-----------|--------------------------------------------------
+Inner Join | Return the records which matched between the two data frames
+Left Join | Returns all of the rows from one table (the left side) and any matching rows from the second table
+Right Join |Returns all of the rows from one table (the right side) and any matching rows from the second table
+Full Join | Returns all of the rows from both tables
+Anti Join | Returns all of the rows from one table (the left side) that do not have matching rows from the second table
+
+In our case we will use left join to bring the latitude and longitude from coordinate data frame and merge it using fishing ground as illustrated in example below.
+
+```{r merge datasets}
+merged_data <- clean_data %>% 
+  left_join(coordinates_long, by ='fishing_ground')
+
+#output  the table
+reactable(merged_data[1:4,])
+```
+
+
+
+
+# Next Class 
+
+Just to give an overview of what you expect in next section of class, See you then.
+```{r echo=TRUE, message=FALSE, warning=FALSE,fig.height=6,fig.width=9,fig.align='center'}
+##**cleaning siganus luridus data**
+siganus_luridus <- one_species %>% 
+  #select the important variables
+  select(species = Species,
+         `length(cm)` = `Total length (cm)`,
+         `weight(g)` = `Individual Wt (g)`,
+         maturity = Maturity,
+         gender = Sex,
+         condition_factor = `condition factor`,
+         fecundity = Fecundity) %>% 
+  #lower the species name
+  mutate(species = str_to_lower(species))
+
+#point plot
+siganus_luridus %>% 
+  ggplot(aes(`length(cm)`,`weight(g)`, color = gender))+
+  geom_point(size = 1.7)+
+  labs(title = 'Distribution of Weight over Fish Length',
+       y ='Weight (g)',
+       x = 'Length (cm)',
+       caption = 'Data Analyst: Moses Kioko \n Pwani University Training')+
+  theme_minimal()+
+  theme(legend.position = "bottom",
+        legend.background = element_rect(color = "grey"),
+        legend.title =  element_blank(),
+        legend.text = element_text(family = "serif"),
+        plot.title = element_text(hjust = 0.5,family = "serif"),
+        axis.text = element_text(family = "serif", face = 'bold'),
+        axis.title = element_text(family = "serif"),
+        axis.line = element_line(colour = "grey30",size = .2),
+        axis.ticks = element_line(colour = "grey30"),
+        plot.subtitle = element_text(family = "serif",face = "italic",hjust = 0.5),
+        plot.caption = element_text(size = 8,color = "steelblue",family = "serif"))
+
+```
+
+
+# Resources 
+
+## Book Links 
+To advance your skills in R programming i would advice you follow the attached links to explore more content on programming with R 
+
+Type Of Book                 |   Link
+-----------------------------|---------------------------------------------------------------------------------------
+Hands on Programming with R  | [Book Link](https://rstudio-education.github.io/hopr/)
+Advanced R                   | [Book Link](https://adv-r.hadley.nz/)
+Data Science Command Line    | [Book Link](https://www.datascienceatthecommandline.com/1e/)
+Efficient Programming with R | [Book Link](https://csgillespie.github.io/efficientR/)
+Rmarkdown                    | [Book Link](https://bookdown.org/yihui/rmarkdown/)
+
+## Tutor Contacts 
+
+The attached are my contacts you can reach out for further guidance 
+
+Type             | contact 
+-----------------|--------------------------------------------------------------------------------
+Email Address    | moseskioko94@gmail.com
+Phone Number     | +254702255489
+Profile          | [profile Link](https://moseskitikukioko.github.io/)
+LinkedIn         | [Linkedin Link](https://www.linkedin.com/in/moseskitiku/)
+Twitter          | [Twitter Link](https://twitter.com/kioko_genius)
+GitHub           | [GitHub Link](https://github.com/MosesKitikuKioko)
+
+
